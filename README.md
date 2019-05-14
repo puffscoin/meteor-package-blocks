@@ -1,19 +1,19 @@
-# Ethereum blocks
+# PUFFScoin blocks
 
-Provides you with an `EthBlocks` collection, which stores the last 50 blocks.
+Provides you with an `PuffsBlocks` collection, which stores the last 50 PUFFScoin blocks.
 
 You can query blocks like any other Meteor collection.
 
 ## Installation
 
-    $ meteor add ethereum:blocks
+    $ meteor add puffscoin:blocks
 
 ## Usage
 
-Initialize Blocks on the start of your application, as soon as you have a ethereum connection:
+Initialize Blocks on the start of your application, as soon as you have a PUFFScoin connection:
 
 ```js
-EthBlocks.init();
+PuffsBlocks.init();
 ```
 
 ### Last block
@@ -21,7 +21,7 @@ EthBlocks.init();
 To get the latest block use:
 
 ```js
-EthBlocks.latest;
+PuffsBlocks.latest;
 ```
 
 Note this property is reactive, so it will re-run your reactive functions, e.g. when used in template helpers.
@@ -29,7 +29,7 @@ Note this property is reactive, so it will re-run your reactive functions, e.g. 
 In case you want to update the latest block you can change properties as follows:
 
 ```js
-EthBlocks.latest = { hash: "12345" };
+PuffsBlocks.latest = { hash: "12345" };
 ```
 
 This would only change the hash property of the latest block, but leave all other properties as is.
@@ -39,7 +39,7 @@ This would only change the hash property of the latest block, but leave all othe
 Additionally all blocks get the current gasprice add:
 
 ```js
-EthBlocks.latest.gasPrice; // '1136672632018' (wei)
+PuffsBlocks.latest.gasPrice; // '1136672632018' (wei)
 ```
 
 ### Detecting forks
@@ -50,18 +50,18 @@ This detection, is checking the new incoming blocks `parentHash`, with the last 
 **Note** The fork detection can currently be wrong, when you're importing blocks, as they can come in different orders.
 
 ```js
-EthBlocks.detectFork(function(oldBlock, newBlock) {
+PuffsBlocks.detectFork(function(oldBlock, newBlock) {
   // this callback will be fired with the old block we knew and the new block.
 });
 ```
 
-Note you can call `EthBlocks.detectFork(cb)` mutliple times, to add multiple callbacks.
+Note you can call `PuffsBlocks.detectFork(cb)` mutliple times, to add multiple callbacks.
 
 ### Clear all stored blocks
 
-If you switch to a chain, which has a lower block number EthBlocks will reset your interally cache of the last 50 blocks.
+If you switch to a chain, which has a lower block number PuffsBlocks will reset your interally cache of the last 50 blocks.
 If you want to do that manually call:
 
 ```js
-EthBlocks.clear();
+PuffsBlocks.clear();
 ```
