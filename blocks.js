@@ -1,33 +1,33 @@
 /**
 
-@module Ethereum:blocks
+@module Puffscoin:blocks
 */
 
 /**
-The EthBlocks collection, with some ethereum additions.
+The PuffsBlocks collection, with some puffscoin additions.
 
-@class EthBlocks
+@class PuffsBlocks
 @constructor
 */
 
-EthBlocks = new Mongo.Collection("ethereum_blocks", { connection: null });
+PuffsBlocks = new Mongo.Collection("puffscoin_blocks", { connection: null });
 
 // if(typeof PersistentMinimongo !== 'undefined')
-//     new PersistentMinimongo(EthBlocks);
+//     new PersistentMinimongo(PuffsBlocks);
 
 /**
 Gives you reactively the lates block.
 
 @property latest
 */
-Object.defineProperty(EthBlocks, "latest", {
+Object.defineProperty(PuffsBlocks, "latest", {
   get: function() {
-    return EthBlocks.findOne({}, { sort: { number: -1 } }) || {};
+    return PuffsBlocks.findOne({}, { sort: { number: -1 } }) || {};
   },
   set: function(values) {
-    var block = EthBlocks.findOne({}, { sort: { number: -1 } }) || {};
+    var block = PuffsBlocks.findOne({}, { sort: { number: -1 } }) || {};
     values = values || {};
-    EthBlocks.update(block._id, { $set: values });
+    PuffsBlocks.update(block._id, { $set: values });
   }
 });
 
@@ -36,23 +36,23 @@ Stores all the callbacks
 
 @property _forkCallbacks
 */
-EthBlocks._forkCallbacks = [];
+PuffsBlocks._forkCallbacks = [];
 
 /**
 Start looking for new blocks
 
 @method init
 */
-EthBlocks.init = function() {
+PuffsBlocks.init = function() {
   if (typeof web3 === "undefined") {
     console.warn(
-      "EthBlocks couldn't find web3, please make sure to instantiate a web3 object before calling EthBlocks.init()"
+      "PuffsBlocks couldn't find web3, please make sure to instantiate a web3 object before calling PuffsBlocks.init()"
     );
     return;
   }
 
   // clear current block list
-  EthBlocks.clear();
+  PuffsBlocks.clear();
 
   Tracker.nonreactive(function() {
     observeLatestBlocks();
@@ -64,8 +64,8 @@ Add callbacks to detect forks
 
 @method detectFork
 */
-EthBlocks.detectFork = function(cb) {
-  EthBlocks._forkCallbacks.push(cb);
+PuffsBlocks.detectFork = function(cb) {
+  PuffsBlocks._forkCallbacks.push(cb);
 };
 
 /**
@@ -73,9 +73,9 @@ Clear all blocks
 
 @method clear
 */
-EthBlocks.clear = function() {
-  _.each(EthBlocks.find({}).fetch(), function(block) {
-    EthBlocks.remove(block._id);
+PuffsBlocks.clear = function() {
+  _.each(PuffsBlocks.find({}).fetch(), function(block) {
+    PuffsBlocks.remove(block._id);
   });
 };
 
@@ -94,7 +94,7 @@ Update the block info and adds additional properties.
 */
 function updateBlock(block) {
   // reset the chain, if the current blocknumber is 100 blocks less
-  if (block.number + 10 < EthBlocks.latest.number) EthBlocks.clear();
+  if (block.number + 10 < PuffsBlocks.latest.number) PuffsBlocks.clear();
 
   block.difficulty = block.difficulty.toString(10);
   block.totalDifficulty = block.totalDifficulty.toString(10);
@@ -102,7 +102,7 @@ function updateBlock(block) {
   web3.eth.getGasPrice(function(e, gasPrice) {
     if (!e) {
       block.gasPrice = gasPrice.toString(10);
-      EthBlocks.upsert(
+      PuffsBlocks.upsert(
         "bl_" + block.hash.replace("0x", "").substr(0, 20),
         block
       );
@@ -150,7 +150,7 @@ var checkLatestBlocks = function(e, hash) {
         if (oldBlock && oldBlock.hash !== block.parentHash) {
           // console.log('FORK detected from Block #'+ oldBlock.number + ' -> #'+ block.number +'!');
 
-          _.each(EthBlocks._forkCallbacks, function(cb) {
+          _.each(PuffsBlocks._forkCallbacks, function(cb) {
             if (_.isFunction(cb)) cb(oldBlock, block);
           });
         }
@@ -158,12 +158,12 @@ var checkLatestBlocks = function(e, hash) {
         updateBlock(block);
 
         // drop the 50th block
-        var blocks = EthBlocks.find({}, { sort: { number: -1 } }).fetch();
+        var blocks = PuffsBlocks.find({}, { sort: { number: -1 } }).fetch();
         if (blocks.length >= 5) {
           var count = 0;
           _.each(blocks, function(bl) {
             count++;
-            if (count >= 5) EthBlocks.remove({ _id: bl._id });
+            if (count >= 5) PuffsBlocks.remove({ _id: bl._id });
           });
         }
       }
