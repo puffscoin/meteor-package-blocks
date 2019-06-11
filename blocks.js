@@ -99,7 +99,7 @@ function updateBlock(block) {
   block.difficulty = block.difficulty.toString(10);
   block.totalDifficulty = block.totalDifficulty.toString(10);
 
-  web3.eth.getGasPrice(function(e, gasPrice) {
+  web3.puffs.getGasPrice(function(e, gasPrice) {
     if (!e) {
       block.gasPrice = gasPrice.toString(10);
       PuffsBlocks.upsert(
@@ -118,14 +118,14 @@ Additionally cap the collection to 50 blocks
 */
 function observeLatestBlocks() {
   // get the latest block immediately
-  web3.eth.getBlock("latest", function(e, block) {
+  web3.puffs.getBlock("latest", function(e, block) {
     if (!e) {
       updateBlock(block);
     }
   });
 
   // GET the latest blockchain information
-  subscription = web3.eth.subscribe("newBlockHeaders", function(error, result) {
+  subscription = web3.puffs.subscribe("newBlockHeaders", function(error, result) {
     checkLatestBlocks(error, result ? result.hash : null);
   });
 }
@@ -137,9 +137,9 @@ The observeLatestBlocks callback used in the block subscription.
 */
 var checkLatestBlocks = function(e, hash) {
   if (!e) {
-    web3.eth.getBlock(hash, function(e, block) {
+    web3.puffs.getBlock(hash, function(e, block) {
       if (!e) {
-        var oldBlock = EthBlocks.latest;
+        var oldBlock = PuffsBlocks.latest;
 
         // console.log('BLOCK', block.number);
 
